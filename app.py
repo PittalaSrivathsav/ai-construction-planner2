@@ -307,7 +307,7 @@ Suggest practical ways to reduce cost.
 Highlight major risks and prevention methods.
 
 Rules:
-- Each point must be 2–3 lines
+- Each point must be 2-3 lines
 - Be specific and realistic
 - Avoid generic statements
 """
