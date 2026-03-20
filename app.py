@@ -25,10 +25,10 @@ def ask_groq(prompt):
     # Fallback if no API key
     if not api_key:
         return (
-            "1. PROJECT FEASIBILITY:\nEnsure proper planning, realistic timelines, and structured execution.\n\n"
-            "2. CRITICAL PHASES:\nFocus on foundation, structural work, and finishing quality.\n\n"
-            "3. COST OPTIMIZATION:\nOptimize labour, reduce material wastage, and plan procurement smartly.\n\n"
-            "4. RISK MANAGEMENT:\nFollow safety standards and monitor execution to avoid delays."
+            "1. PROJECT FEASIBILITY:\nEnsure proper planning and realistic execution.\n\n"
+            "2. CRITICAL PHASES:\nFocus on foundation and structural work.\n\n"
+            "3. COST OPTIMIZATION:\nReduce wastage and optimize materials.\n\n"
+            "4. RISK MANAGEMENT:\nFollow safety standards and prevent delays."
         )
 
     client = Groq(api_key=api_key)
@@ -39,7 +39,7 @@ def ask_groq(prompt):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a highly experienced civil engineer and construction project manager who gives practical, real-world site advice."
+                    "content": "You are a highly experienced civil engineer giving real-world construction advice."
                 },
                 {
                     "role": "user",
@@ -56,17 +56,28 @@ def ask_groq(prompt):
         print("Groq error:", e)
 
         return (
-            "1. PROJECT FEASIBILITY:\nAI temporarily unavailable.\n\n"
-            "2. CRITICAL PHASES:\nMonitor key construction stages carefully.\n\n"
-            "3. COST OPTIMIZATION:\nControl expenses and manage materials.\n\n"
-            "4. RISK MANAGEMENT:\nEnsure safety and proper execution."
+            "1. PROJECT FEASIBILITY:\nAI unavailable.\n\n"
+            "2. CRITICAL PHASES:\nMonitor key stages.\n\n"
+            "3. COST OPTIMIZATION:\nControl expenses.\n\n"
+            "4. RISK MANAGEMENT:\nEnsure safety."
         )
 
 
 # ---------- ROUTES ----------
+
+# ✅ Health check (for Render)
+@app.route("/health")
+def health():
+    return "OK", 200
+
+
+# ✅ Safe home route
 @app.route("/")
 def home():
-    return render_template("index.html")
+    try:
+        return render_template("index.html")
+    except:
+        return "App is running", 200
 
 
 @app.route("/plan", methods=["POST"])
@@ -118,49 +129,47 @@ PROJECT DETAILS:
 Provide expert-level analysis.
 
 1. ACCELERATION RISKS:
-Explain risks like structural issues, improper curing, or labour fatigue.
+Explain risks like structural issues, curing problems, and labour fatigue.
 
-2. QUALITY CONTROL STRATEGY:
-How to maintain construction quality under time pressure.
+2. QUALITY CONTROL:
+How to maintain structural quality under time pressure.
 
-3. RESOURCE & LABOUR OPTIMIZATION:
-How to manage workforce shifts, parallel work, and material supply.
+3. RESOURCE OPTIMIZATION:
+How to manage labour shifts and material flow efficiently.
 
 4. SCHEDULE STRATEGY:
-Best practical approach to meet deadlines without compromising quality.
+Best practical way to meet deadlines without failure.
 
 Rules:
 - Each point must be 3-4 lines
-- Use real construction terms (RCC, curing, load, etc.)
-- Be practical and realistic
+- Use real construction terms
 """
     else:
         prompt = f"""
-You are a senior construction project manager with 20+ years of experience.
+You are a senior construction project manager with 20+ years experience.
 
 PROJECT DETAILS:
 - Area: {area} sq yards
 - Floors: {floors}
 - Timeline: {timeline['days']} days
 
-Provide professional construction insights.
+Provide professional insights.
 
 1. PROJECT FEASIBILITY:
-Evaluate whether the project plan is realistic and highlight challenges.
+Evaluate whether this project plan is realistic.
 
-2. CRITICAL EXECUTION PHASES:
-Explain key phases requiring strict supervision and why.
+2. CRITICAL PHASES:
+Explain which phases need strict monitoring.
 
-3. COST OPTIMIZATION STRATEGY:
-Suggest practical methods to reduce cost without affecting quality.
+3. COST OPTIMIZATION:
+Suggest real-world cost-saving methods.
 
-4. RISK & SAFETY MANAGEMENT:
-Identify major risks and prevention strategies.
+4. RISK MANAGEMENT:
+Identify risks and prevention strategies.
 
 Rules:
 - Each point must be 3-4 lines
-- Use technical construction terminology
-- Avoid generic advice
+- Use technical construction terms
 """
 
     # ---------- AI CALL ----------
