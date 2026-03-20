@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv()
+
 from flask import Flask, request, jsonify, render_template
 from calculator import (
     calculate_workers,
@@ -11,23 +12,24 @@ from calculator import (
 )
 
 import os
-
-# Groq
 from groq import Groq
-
-# IBM Granite (Ollama)
-from ollama_client import ask_granite
 
 app = Flask(__name__)
 
 
+# ---------- AI FUNCTION (FIXED) ----------
 def ask_groq(prompt):
 
     api_key = os.getenv("GROQ_API_KEY")
 
-    # If no Groq key, fall back to Granite
+    # ✅ If no API key → fallback (NO Ollama)
     if not api_key:
-        return ask_granite(prompt)
+        return (
+            "1. PROJECT ASSESSMENT: Ensure feasibility with proper planning and resource allocation.\n"
+            "2. CRITICAL PHASES: Focus on foundation and structural work for stability.\n"
+            "3. RESOURCE OPTIMIZATION: Optimize labour and material usage to reduce costs.\n"
+            "4. RISK PREVENTION: Follow safety standards and use quality materials."
+        )
 
     client = Groq(api_key=api_key)
 
@@ -51,17 +53,17 @@ def ask_groq(prompt):
 
     except Exception as e:
         print("Groq error:", e)
-        try:
-            return ask_granite(prompt)
-        except Exception:
-            return (
-                "1. PROJECT ASSESSMENT: AI service unavailable.\n"
-                "2. CRITICAL PHASES: AI service unavailable.\n"
-                "3. RESOURCE OPTIMIZATION: AI service unavailable.\n"
-                "4. RISK PREVENTION: AI service unavailable."
-            )
+
+        # ✅ Safe fallback (no crash)
+        return (
+            "1. PROJECT ASSESSMENT: AI service temporarily unavailable.\n"
+            "2. CRITICAL PHASES: Focus on planning and execution phases.\n"
+            "3. RESOURCE OPTIMIZATION: Manage labour and materials efficiently.\n"
+            "4. RISK PREVENTION: Ensure safety and compliance."
+        )
 
 
+# ---------- ROUTES ----------
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -88,7 +90,7 @@ def plan():
     if accelerate and (target_days is None or target_days <= 0):
         return jsonify({"error": "target_days must be greater than zero when accelerate is true"}), 400
 
-    # Calculate based on mode
+    # ---------- CALCULATIONS ----------
     if accelerate and target_days:
         workers, accel_factor, normal_days = calculate_accelerated_workers(
             area, floors, target_days
@@ -108,7 +110,7 @@ def plan():
     cost = calculate_cost(workers, timeline["days"])
     schedule = generate_weekly_schedule(timeline["weeks"])
 
-    # Prepare AI prompt
+    # ---------- AI PROMPT ----------
     if accelerate:
         prompt = f"""
 You are a professional construction project manager providing concise advice.
@@ -119,11 +121,8 @@ TARGET: {target_days} days (accelerated from {timeline.get('normal_days', 'N/A')
 Provide EXACTLY 4 points in this format:
 
 1. ACCELERATION RISKS: [one key risk in 15 words]
-
 2. QUALITY CONTROL: [one critical measure in 15 words]
-
 3. RESOURCE MANAGEMENT: [one optimization tip in 15 words]
-
 4. SCHEDULE STRATEGY: [one timeline advice in 15 words]
 
 Keep each point under 20 words. Be specific and actionable.
@@ -138,17 +137,14 @@ TIMELINE: {timeline['days']} days
 Provide EXACTLY 4 points in this format:
 
 1. PROJECT ASSESSMENT: [feasibility verdict in 15 words]
-
 2. CRITICAL PHASES: [top 2 phases to monitor in 15 words]
-
 3. RESOURCE OPTIMIZATION: [one cost-saving tip in 15 words]
-
 4. RISK PREVENTION: [one key safety measure in 15 words]
 
 Keep each point under 20 words. Be specific and actionable.
 """
 
-    # Groq is used here (with Granite fallback)
+    # ---------- AI CALL ----------
     ai_advice = ask_groq(prompt)
 
     return jsonify({
@@ -163,4 +159,4 @@ Keep each point under 20 words. Be specific and actionable.
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True)
