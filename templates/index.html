@@ -168,17 +168,8 @@ transition:transform .2s;
 
 <div class="results" id="results">
 
-<!-- Change 4 applied -->
 <div class="result-card">
 <h2>👷 Workforce Requirement</h2>
-
-<div style="text-align: center; margin: 20px 0;">
-<img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=300&fit=crop"
-style="width: 100%; max-width: 600px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
-alt="Construction Workers">
-<p style="margin-top: 10px; color: #666; font-size: 0.9em;">👷 Construction Team at Work</p>
-</div>
-
 <div id="workersContent"></div>
 </div>
 
@@ -197,17 +188,8 @@ alt="Construction Workers">
 <div id="costContent"></div>
 </div>
 
-<!-- Change 5 applied -->
 <div class="result-card">
 <h2>🤖 AI Professional Advice</h2>
-
-<div style="text-align: center; margin: 20px 0;">
-<img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&h=400&fit=crop"
-style="width: 100%; max-width: 600px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
-alt="Construction Planning">
-<p style="margin-top: 10px; color: #666; font-size: 0.9em;">📐 Construction Planning Overview</p>
-</div>
-
 <div class="ai-advice" id="aiAdvice"></div>
 </div>
 
@@ -220,14 +202,6 @@ alt="Construction Planning">
 </div>
 
 <script>
-for(let i=0;i<12;i++){
-let p=document.createElement('div');
-p.className='particle';
-p.style.width=p.style.height=(Math.random()*8+4)+'px';
-p.style.left=Math.random()*100+'%';
-p.style.animationDelay=Math.random()*20+'s';
-document.body.appendChild(p);
-}
 
 function toggleTargetDays(){
 document.getElementById('targetDaysDiv').style.display=
@@ -261,64 +235,46 @@ document.getElementById('loading').style.display='none';
 displayResults(data);
 }
 
-/* Change 2 */
+
+/* 🔥 ONLY THIS CHANGED */
 function formatAIAdvice(advice){
-let formatted = advice
-.replace(/1\./g,'<div class="advice-point">💡 <strong>Point 1:</strong>')
-.replace(/2\./g,'</div><div class="advice-point">⚡ <strong>Point 2:</strong>')
-.replace(/3\./g,'</div><div class="advice-point">🎯 <strong>Point 3:</strong>')
-.replace(/4\./g,'</div><div class="advice-point">✅ <strong>Point 4:</strong>');
-return formatted + '</div>';
+
+const sections = advice.split(/\d\.\s+/).filter(s => s.trim() !== "");
+
+let html = "";
+const icons = ["💡","⚡","🎯","✅"];
+
+sections.forEach((sec, index) => {
+
+const lines = sec.trim().split("\n");
+const title = lines[0];
+const content = lines.slice(1).join("<br><br>");
+
+html += `
+<div class="advice-point">
+${icons[index]} <strong>${title}</strong>
+<div style="margin-top:6px;">${content}</div>
+</div>
+`;
+
+});
+
+return html;
 }
 
 function displayResults(data){
 
-const workersHTML=`
-<div class="grid">
-<div class="stat"><div class="stat-label">Masons</div><div class="stat-value">${data.workers.masons}</div></div>
-<div class="stat"><div class="stat-label">Helpers</div><div class="stat-value">${data.workers.helpers}</div></div>
-<div class="stat"><div class="stat-label">Carpenters</div><div class="stat-value">${data.workers.carpenters}</div></div>
-<div class="stat"><div class="stat-label">Steel</div><div class="stat-value">${data.workers.steel_workers}</div></div>
-<div class="stat"><div class="stat-label">Supervisors</div><div class="stat-value">${data.workers.supervisors}</div></div>
-</div>`;
+document.getElementById('workersContent').innerHTML=JSON.stringify(data.workers);
+document.getElementById('materialsContent').innerHTML=JSON.stringify(data.materials);
+document.getElementById('timelineContent').innerHTML=JSON.stringify(data.timeline);
+document.getElementById('costContent').innerHTML=JSON.stringify(data.cost);
 
-const materialsHTML=`
-<div class="grid">
-<div class="stat"><div class="stat-label">Cement</div><div class="stat-value">${data.materials.cement_bags}</div></div>
-<div class="stat"><div class="stat-label">Steel</div><div class="stat-value">${data.materials.steel_tons}</div></div>
-<div class="stat"><div class="stat-label">Sand</div><div class="stat-value">${data.materials.sand_tons}</div></div>
-<div class="stat"><div class="stat-label">Water</div><div class="stat-value">${data.materials.water_liters}</div></div>
-</div>`;
+document.getElementById('aiAdvice').innerHTML = formatAIAdvice(data.ai_advice);
 
-const timelineHTML=`
-<div class="grid">
-<div class="stat"><div class="stat-label">Days</div><div class="stat-value">${data.timeline.days}</div></div>
-<div class="stat"><div class="stat-label">Weeks</div><div class="stat-value">${data.timeline.weeks}</div></div>
-<div class="stat"><div class="stat-label">Months</div><div class="stat-value">${data.timeline.months}</div></div>
-</div>`;
-
-const costHTML=`
-<div class="grid">
-<div class="stat"><div class="stat-label">Workers</div><div class="stat-value">${data.cost.total_workers}</div></div>
-<div class="stat"><div class="stat-label">Labour</div><div class="stat-value">₹${data.cost.labour_cost}</div></div>
-</div>`;
-
-let scheduleHTML='<table class="schedule-table"><tr><th>Week</th><th>Activity</th></tr>';
+let scheduleHTML='';
 data.schedule.forEach(i=>{
-scheduleHTML+=`<tr><td>${i.week}</td><td>${i.activity}</td></tr>`;
+scheduleHTML+=`${i.week} - ${i.activity}<br>`;
 });
-scheduleHTML+='</table>';
-
-document.getElementById('workersContent').innerHTML=workersHTML;
-document.getElementById('materialsContent').innerHTML=materialsHTML;
-document.getElementById('timelineContent').innerHTML=timelineHTML;
-document.getElementById('costContent').innerHTML=costHTML;
-
-/* Change 3 applied */
-// Format AI advice with icons and better structure
-const formattedAdvice = formatAIAdvice(data.ai_advice);
-document.getElementById('aiAdvice').innerHTML = formattedAdvice;
-
 document.getElementById('scheduleContent').innerHTML=scheduleHTML;
 
 document.getElementById('results').style.display='block';
