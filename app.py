@@ -128,20 +128,35 @@ Provide EXACTLY 4 points in this format:
 Keep each point under 20 words. Be specific and actionable.
 """
     else:
-        prompt = f"""
-You are a professional construction project manager providing concise advice.
+prompt = f"""
+You are a senior construction project consultant specializing in fast-track construction.
 
-PROJECT: {area} sq yards, {floors} floors
-TIMELINE: {timeline['days']} days
+PROJECT DETAILS:
+- Area: {area} sq yards
+- Floors: {floors}
+- Target Timeline: {target_days} days
+- Normal Timeline: {timeline.get('normal_days', 'N/A')} days
 
-Provide EXACTLY 4 points in this format:
+Provide expert analysis for accelerated construction.
 
-1. PROJECT ASSESSMENT: [feasibility verdict in 15 words]
-2. CRITICAL PHASES: [top 2 phases to monitor in 15 words]
-3. RESOURCE OPTIMIZATION: [one cost-saving tip in 15 words]
-4. RISK PREVENTION: [one key safety measure in 15 words]
+Respond in EXACTLY this format:
 
-Keep each point under 20 words. Be specific and actionable.
+1. ACCELERATION RISKS:
+Explain the biggest risks of speeding up this project.
+
+2. QUALITY CONTROL STRATEGY:
+How to maintain quality under time pressure.
+
+3. RESOURCE & LABOUR OPTIMIZATION:
+How to efficiently manage increased workforce.
+
+4. SCHEDULE STRATEGY:
+Best approach to meet deadline without failure.
+
+Rules:
+- Each point must be 2–3 lines
+- Use professional construction terminology
+- Be practical and actionable
 """
 
     # ---------- AI CALL ----------
