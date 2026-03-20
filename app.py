@@ -277,7 +277,7 @@ How to efficiently manage increased workforce.
 Best approach to meet deadline without failure.
 
 Rules:
-- Each point must be 2–3 lines
+- Each point must be 2-3 lines
 - Use professional construction terminology
 - Be practical and actionable
 """
@@ -344,7 +344,7 @@ How to efficiently manage increased workforce.
 Best approach to meet deadline without failure.
 
 Rules:
-- Each point must be 2–3 lines
+- Each point must be 2-3 lines
 - Use professional construction terminology
 - Be practical and actionable
 """
