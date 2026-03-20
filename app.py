@@ -25,10 +25,10 @@ def ask_groq(prompt):
     # Fallback if no API key
     if not api_key:
         return (
-            "1. PROJECT ASSESSMENT: Ensure feasibility with proper planning.\n"
-            "2. CRITICAL PHASES: Focus on foundation and structure.\n"
-            "3. RESOURCE OPTIMIZATION: Use labour and materials efficiently.\n"
-            "4. RISK PREVENTION: Follow safety standards."
+            "1. PROJECT FEASIBILITY:\nEnsure proper planning, realistic timelines, and structured execution.\n\n"
+            "2. CRITICAL PHASES:\nFocus on foundation, structural work, and finishing quality.\n\n"
+            "3. COST OPTIMIZATION:\nOptimize labour, reduce material wastage, and plan procurement smartly.\n\n"
+            "4. RISK MANAGEMENT:\nFollow safety standards and monitor execution to avoid delays."
         )
 
     client = Groq(api_key=api_key)
@@ -39,15 +39,15 @@ def ask_groq(prompt):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a senior construction project consultant with real-world expertise."
+                    "content": "You are a highly experienced civil engineer and construction project manager who gives practical, real-world site advice."
                 },
                 {
                     "role": "user",
                     "content": prompt
                 }
             ],
-            temperature=0.7,
-            max_tokens=500
+            temperature=0.9,
+            max_tokens=800
         )
 
         return response.choices[0].message.content.strip()
@@ -56,10 +56,10 @@ def ask_groq(prompt):
         print("Groq error:", e)
 
         return (
-            "1. PROJECT ASSESSMENT: AI unavailable.\n"
-            "2. CRITICAL PHASES: Monitor key stages.\n"
-            "3. RESOURCE OPTIMIZATION: Optimize usage.\n"
-            "4. RISK PREVENTION: Ensure safety."
+            "1. PROJECT FEASIBILITY:\nAI temporarily unavailable.\n\n"
+            "2. CRITICAL PHASES:\nMonitor key construction stages carefully.\n\n"
+            "3. COST OPTIMIZATION:\nControl expenses and manage materials.\n\n"
+            "4. RISK MANAGEMENT:\nEnsure safety and proper execution."
         )
 
 
@@ -107,58 +107,60 @@ def plan():
     # ---------- AI PROMPT ----------
     if accelerate:
         prompt = f"""
-You are a senior construction consultant.
+You are a senior construction consultant specializing in fast-track projects.
 
 PROJECT DETAILS:
-Area: {area} sq yards
-Floors: {floors}
-Target Timeline: {target_days} days
+- Area: {area} sq yards
+- Floors: {floors}
+- Target Timeline: {target_days} days
+- Normal Timeline: {timeline.get('normal_days', 'N/A')} days
 
-Provide detailed expert advice in this format:
+Provide expert-level analysis.
 
 1. ACCELERATION RISKS:
-Explain key risks when speeding up construction.
+Explain risks like structural issues, improper curing, or labour fatigue.
 
-2. QUALITY CONTROL:
-How to maintain quality under time pressure.
+2. QUALITY CONTROL STRATEGY:
+How to maintain construction quality under time pressure.
 
-3. RESOURCE OPTIMIZATION:
-How to manage labour and materials efficiently.
+3. RESOURCE & LABOUR OPTIMIZATION:
+How to manage workforce shifts, parallel work, and material supply.
 
 4. SCHEDULE STRATEGY:
-Best approach to meet deadlines without failure.
+Best practical approach to meet deadlines without compromising quality.
 
 Rules:
-- Each point must be 2-3 lines
-- Use professional terms
-- Be practical and actionable
+- Each point must be 3-4 lines
+- Use real construction terms (RCC, curing, load, etc.)
+- Be practical and realistic
 """
     else:
         prompt = f"""
-You are a senior construction consultant.
+You are a senior construction project manager with 20+ years of experience.
 
 PROJECT DETAILS:
-Area: {area} sq yards
-Floors: {floors}
-Timeline: {timeline['days']} days
+- Area: {area} sq yards
+- Floors: {floors}
+- Timeline: {timeline['days']} days
 
-Provide detailed expert advice in this format:
+Provide professional construction insights.
 
 1. PROJECT FEASIBILITY:
-Is the timeline realistic?
+Evaluate whether the project plan is realistic and highlight challenges.
 
-2. CRITICAL PHASES:
-Which phases need close monitoring?
+2. CRITICAL EXECUTION PHASES:
+Explain key phases requiring strict supervision and why.
 
-3. COST OPTIMIZATION:
-How to reduce cost effectively?
+3. COST OPTIMIZATION STRATEGY:
+Suggest practical methods to reduce cost without affecting quality.
 
-4. RISK MANAGEMENT:
-Key risks and prevention methods.
+4. RISK & SAFETY MANAGEMENT:
+Identify major risks and prevention strategies.
 
 Rules:
-- Each point must be 2-3 lines
-- Be specific and realistic
+- Each point must be 3-4 lines
+- Use technical construction terminology
+- Avoid generic advice
 """
 
     # ---------- AI CALL ----------
