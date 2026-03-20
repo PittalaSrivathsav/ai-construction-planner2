@@ -13,57 +13,78 @@
 body{
 font-family:'Poppins',sans-serif;
 background:linear-gradient(135deg,#00c6ff 0%,#0072ff 50%,#00d4ff 100%);
+background-size:400% 400%;
+animation:gradientShift 15s ease infinite;
 min-height:100vh;
 padding:20px;
+overflow-x:hidden;
+}
+
+body::before{
+content:'';
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background-image:
+url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200'),
+linear-gradient(135deg,rgba(102,126,234,.9),rgba(118,75,162,.9));
+background-blend-mode:overlay;
+background-size:cover;
+background-position:center;
+opacity:.3;
+z-index:-1;
+}
+
+@keyframes gradientShift{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
 }
 
 .container{max-width:1200px;margin:auto;}
 
 .header{text-align:center;color:white;margin-bottom:30px;}
 
-.header h1{font-size:2.5em;font-weight:700;}
+.header h1{font-size:3em;font-weight:700;}
 
 .input-card{
 background:rgba(255,255,255,.15);
-backdrop-filter:blur(15px);
-border-radius:20px;
-padding:25px;
+backdrop-filter:blur(20px);
+border-radius:25px;
+padding:35px;
 margin-bottom:20px;
 }
 
-label{color:white;font-weight:500;margin-top:10px;}
+label{color:white;margin-top:10px;display:block;}
 
 input{
-width:100%;padding:12px;border-radius:10px;border:none;margin-top:5px;
+width:100%;padding:12px;border-radius:10px;border:none;
 }
 
 button{
-width:100%;padding:14px;margin-top:15px;
-border:none;border-radius:12px;
-background:#ffd700;font-weight:700;cursor:pointer;
+width:100%;padding:15px;border:none;border-radius:12px;
+background:#ffd700;font-weight:700;cursor:pointer;margin-top:10px;
 }
 
 .results{display:none;margin-top:20px;}
 
 .result-card{
 background:white;
-border-radius:15px;
+border-radius:18px;
 padding:20px;
 margin-bottom:20px;
 }
 
-.result-card h2{color:#333;margin-bottom:10px;}
-
 .grid{
 display:grid;
-grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
 gap:10px;
 }
 
 .stat{
 background:#f4f6ff;
-padding:12px;
-border-left:4px solid #0072ff;
+padding:10px;
+border-left:4px solid #667eea;
 border-radius:8px;
 }
 
@@ -73,24 +94,16 @@ padding:15px;
 border-radius:10px;
 }
 
-/* 🔥 NEW AI CARDS */
-.ai-card{
+/* same UI */
+.advice-point{
+margin:10px 0;
+padding:12px;
 background:white;
-border-radius:12px;
-padding:15px;
-margin-bottom:15px;
-box-shadow:0 3px 10px rgba(0,0,0,0.1);
-border-left:5px solid #0072ff;
-}
-
-.ai-title{
-font-weight:700;
-color:#0072ff;
-margin-bottom:6px;
+border-left:4px solid #667eea;
+border-radius:8px;
 }
 
 .loading{text-align:center;color:white;display:none;}
-
 </style>
 </head>
 
@@ -100,12 +113,12 @@ margin-bottom:6px;
 
 <div class="header">
 <h1>🏗️ AI Construction Planner</h1>
-<p>Smart Planning with AI 🚀</p>
+<p>✨ Smart Planning ✨</p>
 </div>
 
 <div class="input-card">
 
-<label>Area (sq yards)</label>
+<label>Area</label>
 <input type="number" id="area">
 
 <label>Floors</label>
@@ -120,7 +133,7 @@ margin-bottom:6px;
 <input type="number" id="target_days" value="90">
 </div>
 
-<button onclick="generatePlan()">Generate Plan</button>
+<button onclick="generatePlan()">Generate</button>
 </div>
 
 <div class="loading" id="loading">Generating...</div>
@@ -128,32 +141,32 @@ margin-bottom:6px;
 <div class="results" id="results">
 
 <div class="result-card">
-<h2>👷 Workers</h2>
+<h2>Workers</h2>
 <div id="workersContent"></div>
 </div>
 
 <div class="result-card">
-<h2>📦 Materials</h2>
+<h2>Materials</h2>
 <div id="materialsContent"></div>
 </div>
 
 <div class="result-card">
-<h2>📅 Timeline</h2>
+<h2>Timeline</h2>
 <div id="timelineContent"></div>
 </div>
 
 <div class="result-card">
-<h2>💰 Cost</h2>
+<h2>Cost</h2>
 <div id="costContent"></div>
 </div>
 
 <div class="result-card">
-<h2>🤖 AI Expert Advice</h2>
+<h2>AI Advice</h2>
 <div class="ai-advice" id="aiAdvice"></div>
 </div>
 
 <div class="result-card">
-<h2>📋 Schedule</h2>
+<h2>Schedule</h2>
 <div id="scheduleContent"></div>
 </div>
 
@@ -174,7 +187,7 @@ const floors=document.getElementById('floors').value;
 const accelerate=document.getElementById('accelerate').checked;
 const target_days=document.getElementById('target_days').value;
 
-if(!area||!floors){alert("Enter values");return;}
+if(!area||!floors){alert("Fill details");return;}
 
 document.getElementById('loading').style.display='block';
 
@@ -191,28 +204,29 @@ target_days:+target_days
 
 const data=await res.json();
 document.getElementById('loading').style.display='none';
+
 displayResults(data);
 }
 
 
-/* 🔥 FIXED AI FORMAT FUNCTION */
-function formatAIAdvice(text){
+/* 🔥 FIXED FUNCTION ONLY */
+function formatAIAdvice(advice){
 
-// Split by numbered sections
-const sections = text.split(/\d\.\s+/).filter(s => s.trim() !== "");
+const sections = advice.split(/\d\.\s+/).filter(s => s.trim() !== "");
 
 let html = "";
 
 sections.forEach((sec, index) => {
 
 const lines = sec.trim().split("\n");
+
 const title = lines[0];
 const content = lines.slice(1).join("<br><br>");
 
 html += `
-<div class="ai-card">
-<div class="ai-title">Point ${index+1}: ${title}</div>
-<div>${content}</div>
+<div class="advice-point">
+<strong>Point ${index + 1}: ${title}</strong>
+<div style="margin-top:5px;">${content}</div>
 </div>
 `;
 
@@ -224,22 +238,20 @@ return html;
 
 function displayResults(data){
 
-document.getElementById('workersContent').innerHTML = JSON.stringify(data.workers);
-document.getElementById('materialsContent').innerHTML = JSON.stringify(data.materials);
-document.getElementById('timelineContent').innerHTML = JSON.stringify(data.timeline);
-document.getElementById('costContent').innerHTML = JSON.stringify(data.cost);
+document.getElementById('workersContent').innerText = JSON.stringify(data.workers,null,2);
+document.getElementById('materialsContent').innerText = JSON.stringify(data.materials,null,2);
+document.getElementById('timelineContent').innerText = JSON.stringify(data.timeline,null,2);
+document.getElementById('costContent').innerText = JSON.stringify(data.cost,null,2);
 
-// 🔥 ADVANCED AI DISPLAY
+// ✅ only change here
 document.getElementById('aiAdvice').innerHTML = formatAIAdvice(data.ai_advice);
 
-// Schedule
-let scheduleHTML='<table border="1" width="100%">';
+// schedule
+let html='';
 data.schedule.forEach(i=>{
-scheduleHTML+=`<tr><td>${i.week}</td><td>${i.activity}</td></tr>`;
+html+=`${i.week} - ${i.activity}<br>`;
 });
-scheduleHTML+='</table>';
-
-document.getElementById('scheduleContent').innerHTML=scheduleHTML;
+document.getElementById('scheduleContent').innerHTML=html;
 
 document.getElementById('results').style.display='block';
 }
