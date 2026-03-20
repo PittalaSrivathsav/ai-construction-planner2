@@ -50,7 +50,10 @@ def ask_groq(prompt):
             max_tokens=800
         )
 
-        return response.choices[0].message.content.strip()
+        ai_text = response.choices[0].message.content.strip()
+
+# Ensure proper formatting
+return ai_text.replace("\n\n", "\n").strip()
 
     except Exception as e:
         print("Groq error:", e)
