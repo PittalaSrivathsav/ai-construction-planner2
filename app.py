@@ -39,7 +39,7 @@ def ask_groq(prompt):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a senior construction project consultant."
+                    "content": "You are a senior construction project consultant with real-world expertise."
                 },
                 {
                     "role": "user",
@@ -109,37 +109,56 @@ def plan():
         prompt = f"""
 You are a senior construction consultant.
 
-PROJECT:
+PROJECT DETAILS:
 Area: {area} sq yards
 Floors: {floors}
-Target: {target_days} days
+Target Timeline: {target_days} days
 
-Provide 4 detailed points:
+Provide detailed expert advice in this format:
 
-1. ACCELERATION RISKS
-2. QUALITY CONTROL
-3. RESOURCE OPTIMIZATION
-4. SCHEDULE STRATEGY
+1. ACCELERATION RISKS:
+Explain key risks when speeding up construction.
 
-Each point must be 2-3 lines.
+2. QUALITY CONTROL:
+How to maintain quality under time pressure.
+
+3. RESOURCE OPTIMIZATION:
+How to manage labour and materials efficiently.
+
+4. SCHEDULE STRATEGY:
+Best approach to meet deadlines without failure.
+
+Rules:
+- Each point must be 2-3 lines
+- Use professional terms
+- Be practical and actionable
 """
     else:
         prompt = f"""
 You are a senior construction consultant.
 
-PROJECT:
+PROJECT DETAILS:
 Area: {area} sq yards
 Floors: {floors}
 Timeline: {timeline['days']} days
 
-Provide 4 detailed points:
+Provide detailed expert advice in this format:
 
-1. PROJECT FEASIBILITY
-2. CRITICAL PHASES
-3. COST OPTIMIZATION
-4. RISK MANAGEMENT
+1. PROJECT FEASIBILITY:
+Is the timeline realistic?
 
-Each point must be 2-3 lines.
+2. CRITICAL PHASES:
+Which phases need close monitoring?
+
+3. COST OPTIMIZATION:
+How to reduce cost effectively?
+
+4. RISK MANAGEMENT:
+Key risks and prevention methods.
+
+Rules:
+- Each point must be 2-3 lines
+- Be specific and realistic
 """
 
     # ---------- AI CALL ----------
@@ -151,9 +170,12 @@ Each point must be 2-3 lines.
         "timeline": timeline,
         "cost": cost,
         "schedule": schedule,
-        "ai_advice": ai_advice
+        "ai_advice": ai_advice,
+        "mode": "accelerated" if accelerate else "normal"
     })
 
 
+# ---------- RUN APP (RENDER FIX) ----------
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
