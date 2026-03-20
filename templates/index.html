@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Construction Planner 🏗️</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+font-family:'Poppins',sans-serif;
+background:linear-gradient(135deg,#00c6ff 0%,#0072ff 50%,#00d4ff 100%);
+background-size:400% 400%;
+animation:gradientShift 15s ease infinite;
+min-height:100vh;
+padding:20px;
+overflow-x:hidden;
+}
+
+body::before{
+content:'';
+position:fixed;
+top:0;left:0;
+width:100%;height:100%;
+background-image:
+url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200'),
+linear-gradient(135deg,rgba(102,126,234,.9),rgba(118,75,162,.9));
+background-blend-mode:overlay;
+background-size:cover;
+background-position:center;
+opacity:.3;
+z-index:-1;
+}
+
+@keyframes gradientShift{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+.particle{
+position:fixed;
+background:rgba(255,255,255,.5);
+border-radius:50%;
+pointer-events:none;
+animation:float 20s infinite;
+}
+
+@keyframes float{
+0%,100%{transform:translateY(0) rotate(0deg);opacity:0}
+10%{opacity:1}
+90%{opacity:1}
+100%{transform:translateY(-100vh) rotate(360deg);opacity:0}
+}
+
+.container{max-width:1200px;margin:auto;z-index:1;position:relative;}
+
+.header{text-align:center;color:white;margin-bottom:30px;}
+
+.header h1{font-size:3em;font-weight:700;background:linear-gradient(45deg,#fff,#eee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+.input-card{
+background:rgba(255,255,255,.15);
+backdrop-filter:blur(20px);
+border-radius:25px;
+padding:35px;
+box-shadow:0 8px 32px rgba(0,0,0,.2);
+margin-bottom:20px;
+}
+
+label{color:white;font-weight:500;margin-bottom:8px;display:block;}
+
+input[type=number]{
+width:100%;padding:14px;border-radius:12px;border:none;
+}
+
+.checkbox-group{display:flex;gap:10px;color:white;margin-bottom:15px;}
+
+button{
+width:100%;padding:16px;border:none;border-radius:14px;
+font-weight:700;font-size:1.1em;
+background:linear-gradient(135deg,#ffd700,#ffed4e);
+cursor:pointer;
+}
+
+.results{display:none;margin-top:30px;}
+
+.result-card{
+background:white;
+border-radius:18px;
+padding:25px;
+margin-bottom:20px;
+}
+
+.result-card h2{color:#667eea;border-bottom:3px solid #667eea;padding-bottom:10px;margin-bottom:15px;}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:15px;
+}
+
+.stat{background:#f4f6ff;padding:15px;border-left:4px solid #667eea;border-radius:10px;}
+
+.stat-label{font-size:.9em;color:#555;}
+.stat-value{font-size:1.4em;font-weight:700;}
+
+.ai-advice{
+background:linear-gradient(135deg,#fff9e6,#fffaed);
+border-left:5px solid #ffc107;
+padding:20px;border-radius:12px;
+}
+
+.advice-point{
+margin:12px 0;
+padding:12px 16px;
+background:white;
+border-radius:10px;
+border-left:4px solid #667eea;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+transition:transform .2s;
+}
+
+.advice-point:hover{transform:translateX(5px);border-left-color:#ffc107;}
+.advice-point strong{color:#667eea;display:block;margin-bottom:4px;}
+
+.schedule-table{width:100%;border-collapse:collapse;margin-top:10px;}
+.schedule-table th,.schedule-table td{padding:10px;border-bottom:1px solid #ddd;}
+
+.loading{text-align:center;color:white;font-size:1.2em;display:none;}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+<h1>🏗️ AI Construction Planner</h1>
+<p>✨ Powered by IBM Granite 3.1 | Smart Resource Planning ✨</p>
+</div>
+
+<div class="input-card">
+
+<label>Construction Area (sq yards)</label>
+<input type="number" id="area">
+
+<label>Number of Floors</label>
+<input type="number" id="floors">
+
+<div class="checkbox-group">
+<input type="checkbox" id="accelerate" onchange="toggleTargetDays()">
+<label for="accelerate">Accelerated timeline</label>
+</div>
+
+<div id="targetDaysDiv" style="display:none">
+<label>Target days</label>
+<input type="number" id="target_days" value="90">
+</div>
+
+<button id="submitBtn" onclick="generatePlan()">Generate Plan</button>
+</div>
+
+<div class="loading" id="loading">Generating...</div>
+
+<div class="results" id="results">
+
+<!-- Change 4 applied -->
+<div class="result-card">
+<h2>👷 Workforce Requirement</h2>
+
+<div style="text-align: center; margin: 20px 0;">
+<img src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&h=300&fit=crop"
+style="width: 100%; max-width: 600px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
+alt="Construction Workers">
+<p style="margin-top: 10px; color: #666; font-size: 0.9em;">👷 Construction Team at Work</p>
+</div>
+
+<div id="workersContent"></div>
+</div>
+
+<div class="result-card">
+<h2>📦 Materials</h2>
+<div id="materialsContent"></div>
+</div>
+
+<div class="result-card">
+<h2>📅 Timeline</h2>
+<div id="timelineContent"></div>
+</div>
+
+<div class="result-card">
+<h2>💰 Cost</h2>
+<div id="costContent"></div>
+</div>
+
+<!-- Change 5 applied -->
+<div class="result-card">
+<h2>🤖 AI Professional Advice</h2>
+
+<div style="text-align: center; margin: 20px 0;">
+<img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&h=400&fit=crop"
+style="width: 100%; max-width: 600px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);"
+alt="Construction Planning">
+<p style="margin-top: 10px; color: #666; font-size: 0.9em;">📐 Construction Planning Overview</p>
+</div>
+
+<div class="ai-advice" id="aiAdvice"></div>
+</div>
+
+<div class="result-card">
+<h2>📋 Schedule</h2>
+<div id="scheduleContent"></div>
+</div>
+
+</div>
+</div>
+
+<script>
+for(let i=0;i<12;i++){
+let p=document.createElement('div');
+p.className='particle';
+p.style.width=p.style.height=(Math.random()*8+4)+'px';
+p.style.left=Math.random()*100+'%';
+p.style.animationDelay=Math.random()*20+'s';
+document.body.appendChild(p);
+}
+
+function toggleTargetDays(){
+document.getElementById('targetDaysDiv').style.display=
+document.getElementById('accelerate').checked?'block':'none';
+}
+
+async function generatePlan(){
+
+const area=document.getElementById('area').value;
+const floors=document.getElementById('floors').value;
+const accelerate=document.getElementById('accelerate').checked;
+const target_days=document.getElementById('target_days').value;
+
+if(!area||!floors){alert("Fill details");return;}
+
+document.getElementById('loading').style.display='block';
+
+const res=await fetch('/plan',{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({
+area:+area,
+floors:+floors,
+accelerate,
+target_days:+target_days
+})
+});
+
+const data=await res.json();
+document.getElementById('loading').style.display='none';
+displayResults(data);
+}
+
+/* Change 2 */
+function formatAIAdvice(advice){
+let formatted = advice
+.replace(/1\./g,'<div class="advice-point">💡 <strong>Point 1:</strong>')
+.replace(/2\./g,'</div><div class="advice-point">⚡ <strong>Point 2:</strong>')
+.replace(/3\./g,'</div><div class="advice-point">🎯 <strong>Point 3:</strong>')
+.replace(/4\./g,'</div><div class="advice-point">✅ <strong>Point 4:</strong>');
+return formatted + '</div>';
+}
+
+function displayResults(data){
+
+const workersHTML=`
+<div class="grid">
+<div class="stat"><div class="stat-label">Masons</div><div class="stat-value">${data.workers.masons}</div></div>
+<div class="stat"><div class="stat-label">Helpers</div><div class="stat-value">${data.workers.helpers}</div></div>
+<div class="stat"><div class="stat-label">Carpenters</div><div class="stat-value">${data.workers.carpenters}</div></div>
+<div class="stat"><div class="stat-label">Steel</div><div class="stat-value">${data.workers.steel_workers}</div></div>
+<div class="stat"><div class="stat-label">Supervisors</div><div class="stat-value">${data.workers.supervisors}</div></div>
+</div>`;
+
+const materialsHTML=`
+<div class="grid">
+<div class="stat"><div class="stat-label">Cement</div><div class="stat-value">${data.materials.cement_bags}</div></div>
+<div class="stat"><div class="stat-label">Steel</div><div class="stat-value">${data.materials.steel_tons}</div></div>
+<div class="stat"><div class="stat-label">Sand</div><div class="stat-value">${data.materials.sand_tons}</div></div>
+<div class="stat"><div class="stat-label">Water</div><div class="stat-value">${data.materials.water_liters}</div></div>
+</div>`;
+
+const timelineHTML=`
+<div class="grid">
+<div class="stat"><div class="stat-label">Days</div><div class="stat-value">${data.timeline.days}</div></div>
+<div class="stat"><div class="stat-label">Weeks</div><div class="stat-value">${data.timeline.weeks}</div></div>
+<div class="stat"><div class="stat-label">Months</div><div class="stat-value">${data.timeline.months}</div></div>
+</div>`;
+
+const costHTML=`
+<div class="grid">
+<div class="stat"><div class="stat-label">Workers</div><div class="stat-value">${data.cost.total_workers}</div></div>
+<div class="stat"><div class="stat-label">Labour</div><div class="stat-value">₹${data.cost.labour_cost}</div></div>
+</div>`;
+
+let scheduleHTML='<table class="schedule-table"><tr><th>Week</th><th>Activity</th></tr>';
+data.schedule.forEach(i=>{
+scheduleHTML+=`<tr><td>${i.week}</td><td>${i.activity}</td></tr>`;
+});
+scheduleHTML+='</table>';
+
+document.getElementById('workersContent').innerHTML=workersHTML;
+document.getElementById('materialsContent').innerHTML=materialsHTML;
+document.getElementById('timelineContent').innerHTML=timelineHTML;
+document.getElementById('costContent').innerHTML=costHTML;
+
+/* Change 3 applied */
+// Format AI advice with icons and better structure
+const formattedAdvice = formatAIAdvice(data.ai_advice);
+document.getElementById('aiAdvice').innerHTML = formattedAdvice;
+
+document.getElementById('scheduleContent').innerHTML=scheduleHTML;
+
+document.getElementById('results').style.display='block';
+}
+</script>
+</body>
+</html>
