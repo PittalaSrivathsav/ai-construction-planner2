@@ -52,8 +52,8 @@ def ask_groq(prompt):
 
         ai_text = response.choices[0].message.content.strip()
 
-# Ensure proper formatting
-return ai_text.replace("\n\n", "\n").strip()
+        # ✅ FIXED: inside try block
+        return ai_text.replace("\n\n", "\n").strip()
 
     except Exception as e:
         print("Groq error:", e)
@@ -68,13 +68,11 @@ return ai_text.replace("\n\n", "\n").strip()
 
 # ---------- ROUTES ----------
 
-# ✅ Health check (for Render)
 @app.route("/health")
 def health():
     return "OK", 200
 
 
-# ✅ Safe home route
 @app.route("/")
 def home():
     try:
@@ -189,7 +187,7 @@ Rules:
     })
 
 
-# ---------- RUN APP (RENDER FIX) ----------
+# ---------- RUN APP ----------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
